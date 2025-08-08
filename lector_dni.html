@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lector DNI Perú</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; background-color: #f8f9fa; }
+        #video-container { text-align: center; margin-bottom: 20px; }
+        video { width: 100%; max-width: 400px; border: 2px solid #007bff; border-radius: 8px; }
+        table { background: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="text-center mb-4">📷 Lector de DNI Perú</h2>
+
+    <div class="text-center">
+        <button id="start-scan" class="btn btn-primary mb-3">Leer DNI</button>
+    </div>
+
+    <div id="video-container" class="d-none">
+        <video id="video" playsinline></video>
+    </div>
+
+    <div id="result" class="mt-4"></div>
+</div>
+
+<!-- ZXing library -->
+<script src="https://unpkg.com/@zxing/library@latest"></script>
+
+<script>
+document.getElementById('start-scan').addEventListener('click', () => {
+    document.getElementById('video-container').classList.remove('d-none');
+    startScanner();
+});
+
+function startScanner() {
+    const codeReader = new ZXing.BrowserMultiFormatReader();
+    const video = document.getElementById('video');
+
+    codeReader.decodeFromVideoDevice(null, video, (result, err) => {
+        if (result) {
+            codeReader.reset();
+            document.getElementById('video-container').classList.add('d-none');
+            mostrarDatos(result.text);
+        }
+    });
+}
+
+function mostrarDatos(codigo) {
+    // El PDF417 del DNI contiene los datos separados por el caracter "|"
+    let partes = codigo.split('|');
+
+    // Según el formato RENIEC:
+    let numeroDNI      = partes[1] || '';
+    let apellidoPaterno= partes[2] || '';
+    let apellidoMaterno= partes[3] || '';
+    let nombres        = partes[4] || '';
+    let fechaNacimiento= partes[6] || '';
+
+    document.getElementById('result').innerHTML = `
+        <h4>Datos del DNI</h4>
+        <table class="table table-bordered">
+            <tr><th>N° DNI</th><td>${numeroDNI}</td></tr>
+            <tr><th>Apellido Paterno</th><td>${apellidoPaterno}</td></tr>
+            <tr><th>Apellido Materno</th><td>${apellidoMaterno}</td></tr>
+            <tr><th>Nombres</th><td>${nombres}</td></tr>
+            <tr><th>Fecha Nacimiento</th><td>${fechaNacimiento}</td></tr>
+        </table>
+    `;
+}
+</script>
+
+</body>
+</html>
