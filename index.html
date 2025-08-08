@@ -11,6 +11,7 @@
         #video-container { text-align: center; margin-bottom: 20px; }
         video { width: 100%; max-width: 400px; border: 2px solid #007bff; border-radius: 8px; }
         table { background: white; }
+        pre { background: #eee; padding: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -26,6 +27,7 @@
         <video id="video" playsinline></video>
     </div>
 
+    <div id="raw" class="mt-4"></div>
     <div id="result" class="mt-4"></div>
 </div>
 
@@ -52,10 +54,15 @@ function startScanner() {
 }
 
 function mostrarDatos(codigo) {
-    // El PDF417 del DNI contiene los datos separados por el caracter "|"
+    // Mostrar el texto completo leído del PDF417
+    document.getElementById('raw').innerHTML = `
+        <h5>Texto crudo leído:</h5>
+        <pre>${codigo}</pre>
+    `;
+
+    // Intentar separar datos (puede variar según DNI)
     let partes = codigo.split('|');
 
-    // Según el formato RENIEC:
     let numeroDNI      = partes[1] || '';
     let apellidoPaterno= partes[2] || '';
     let apellidoMaterno= partes[3] || '';
@@ -63,7 +70,7 @@ function mostrarDatos(codigo) {
     let fechaNacimiento= partes[6] || '';
 
     document.getElementById('result').innerHTML = `
-        <h4>Datos del DNI</h4>
+        <h4>Datos procesados</h4>
         <table class="table table-bordered">
             <tr><th>N° DNI</th><td>${numeroDNI}</td></tr>
             <tr><th>Apellido Paterno</th><td>${apellidoPaterno}</td></tr>
